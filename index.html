@@ -3,497 +3,268 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 Yuki & Evan 的集點森林</title>
+<title>🌿 集點森林</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f0f7eb; --card: #ffffff; --text: #3d5a3e; --muted: #7a9e7a;
+  --border: #dde8cc; --radius: 18px; --font: 'Nunito', sans-serif;
+}
+body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 60px; }
+.app { max-width: 480px; margin: 0 auto; padding: 16px; }
 
-  :root {
-    --yuki-main: #a8d8a8;
-    --yuki-light: #e8f5e8;
-    --yuki-dark: #3e7e3e;
-    --evan-main: #f9c784;
-    --evan-light: #fff5e0;
-    --evan-dark: #b07400;
-    --bg: #f0f7eb;
-    --card: #ffffff;
-    --text: #3d5a3e;
-    --muted: #7a9e7a;
-    --border: #dde8cc;
-    --radius: 18px;
-    --font: 'Nunito', sans-serif;
-  }
+.header { text-align: center; padding: 16px 0 4px; }
+.header-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
 
-  body {
-    font-family: var(--font);
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    padding-bottom: 40px;
-  }
+.tabs-wrap { margin: 14px 0 18px; }
+.tabs { display: flex; gap: 8px; background: #dceacc; border-radius: 50px; padding: 5px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex-shrink: 0; padding: 10px 16px; border: none; border-radius: 40px; font-family: var(--font); font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.22s; background: transparent; color: #6a8e5a; white-space: nowrap; }
+.tab.active { color: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.12); }
+.tab-add { flex-shrink: 0; padding: 10px 14px; border: none; border-radius: 40px; font-family: var(--font); font-size: 20px; font-weight: 700; cursor: pointer; background: transparent; color: #7a9e6a; transition: all 0.2s; line-height: 1; }
+.tab-add:hover { background: rgba(255,255,255,0.5); }
 
-  .app { max-width: 480px; margin: 0 auto; padding: 16px; }
+.hero-card { border-radius: var(--radius); padding: 20px; margin-bottom: 14px; display: flex; align-items: center; gap: 16px; border: 2px solid transparent; }
+.avatar-wrap { position: relative; flex-shrink: 0; cursor: pointer; }
+.avatar { width: 72px; height: 72px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 38px; transition: filter 0.15s; }
+.avatar-wrap:hover .avatar { filter: brightness(0.9); }
+.avatar-edit-hint { position: absolute; bottom: 0; right: 0; background: #fff; border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 11px; border: 1.5px solid #dde8cc; pointer-events: none; }
+.hero-info { flex: 1; min-width: 0; }
+.hero-name-row { display: flex; align-items: center; gap: 6px; }
+.hero-name { font-size: 20px; font-weight: 800; }
+.name-edit-btn { background: none; border: none; cursor: pointer; font-size: 13px; padding: 1px 3px; border-radius: 5px; opacity: 0.4; transition: opacity 0.15s; line-height: 1; }
+.name-edit-btn:hover { opacity: 1; }
+.points-display { display: flex; align-items: baseline; gap: 5px; margin-top: 4px; }
+.points-num { font-size: 40px; font-weight: 800; line-height: 1; }
+.points-label { font-size: 14px; color: var(--muted); font-weight: 700; }
+.redeem-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+.redeem-btn { width: 100%; margin-top: 10px; padding: 11px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px; }
+.redeem-btn:hover:not(:disabled) { filter: brightness(0.95); }
+.redeem-btn:disabled { opacity: 0.42; cursor: not-allowed; }
+.redeem-btn:active:not(:disabled) { transform: scale(0.98); }
 
-  /* Header */
-  .header { text-align: center; padding: 16px 0 8px; }
-  .header-title { font-size: 24px; font-weight: 800; color: var(--text); letter-spacing: -0.3px; }
-  .header-sub { font-size: 13px; color: var(--muted); margin-top: 3px; }
+.delete-child-btn { width: 100%; margin-top: 10px; padding: 9px; border: 1.5px dashed #e0b0b0; border-radius: 10px; background: none; font-family: var(--font); font-size: 12px; font-weight: 700; color: #c08080; cursor: pointer; transition: all 0.2s; }
+.delete-child-btn:hover { background: #ffeaea; border-color: #e06060; color: #e06060; }
 
-  /* Tabs */
-  .tabs { display: flex; gap: 10px; background: #dceacc; border-radius: 50px; padding: 5px; margin: 14px 0 18px; }
-  .tab {
-    flex: 1; padding: 11px 0; border: none; border-radius: 40px;
-    font-family: var(--font); font-size: 15px; font-weight: 700;
-    cursor: pointer; transition: all 0.25s; background: transparent; color: #6a8e5a;
-  }
-  .tab.yuki-active { background: var(--yuki-main); color: #2a5e2a; box-shadow: 0 2px 10px #a8d8a840; }
-  .tab.evan-active { background: var(--evan-main); color: #7a5000; box-shadow: 0 2px 10px #f9c78440; }
+.section-title { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin: 16px 0 8px; }
+.section-title-toggle { display: flex; align-items: center; justify-content: space-between; cursor: pointer; user-select: none; padding: 2px 0; }
+.section-title-toggle:hover { color: var(--text); }
+.toggle-arrow { font-size: 10px; color: var(--muted); transition: transform 0.25s; display: inline-block; }
+.toggle-arrow.open { transform: rotate(180deg); }
+.collapsible { overflow: hidden; max-height: 4000px; transition: max-height 0.35s cubic-bezier(.4,0,.2,1), opacity 0.25s; opacity: 1; }
+.collapsible.collapsed { max-height: 0; opacity: 0; }
 
-  /* Hero card */
-  .hero-card {
-    border-radius: var(--radius); padding: 20px; margin-bottom: 14px;
-    display: flex; align-items: center; gap: 16px; border: 2px solid transparent;
-  }
-  .hero-card.yuki { background: var(--yuki-light); border-color: #c0e0b0; }
-  .hero-card.evan { background: var(--evan-light); border-color: #f0d898; }
+.add-form { background: var(--card); border-radius: var(--radius); padding: 16px; border: 1.5px solid var(--border); margin-bottom: 14px; }
+.form-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
+.form-row:last-child { margin-bottom: 0; }
+.form-group { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.form-label { font-size: 11px; font-weight: 700; color: var(--muted); }
+.form-input, .form-select { font-family: var(--font); font-size: 14px; color: var(--text); background: #f5faf0; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 11px; width: 100%; outline: none; transition: border 0.2s; }
+.form-input:focus, .form-select:focus { border-color: #3e7e3e; }
+.form-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a9e7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+.form-input-pts { flex: none; width: 70px; text-align: center; font-weight: 800; font-size: 16px; }
+.add-btn { width: 100%; padding: 13px; border: none; border-radius: 12px; font-family: var(--font); font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
+.add-btn:hover { filter: brightness(0.95); }
+.add-btn:active { transform: scale(0.98); }
 
-  .avatar {
-    width: 72px; height: 72px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 38px; flex-shrink: 0;
-  }
-  .avatar.yuki { background: #cce8c0; }
-  .avatar.evan { background: #fce0a0; }
+.redeem-history { background: var(--card); border-radius: 14px; padding: 14px; border: 1.5px solid var(--border); margin-bottom: 14px; }
+.redeem-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f0e8; }
+.redeem-item:last-child { border-bottom: none; }
+.redeem-item-icon { font-size: 18px; }
+.redeem-item-info { flex: 1; }
+.redeem-item-label { font-size: 13px; font-weight: 700; color: var(--text); }
+.redeem-item-date { font-size: 11px; color: var(--muted); }
+.redeem-item-pts { font-size: 13px; font-weight: 800; color: #e06060; }
+.redeem-item-del { background: none; border: none; cursor: pointer; color: #ccc; font-size: 15px; padding: 3px 5px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0; }
+.redeem-item-del:hover { color: #e06060; background: #ffeaea; }
 
-  .hero-info { flex: 1; min-width: 0; }
-  .hero-name { font-size: 20px; font-weight: 800; }
-  .hero-name.yuki { color: var(--yuki-dark); }
-  .hero-name.evan { color: var(--evan-dark); }
+.records { display: flex; flex-direction: column; gap: 8px; }
+.record-item { background: var(--card); border-radius: 14px; padding: 12px 14px; border: 1.5px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.record-icon { font-size: 22px; flex-shrink: 0; }
+.record-info { flex: 1; min-width: 0; }
+.record-reason { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.record-dates { font-size: 11px; color: var(--muted); margin-top: 2px; }
+.record-pts { font-size: 17px; font-weight: 800; flex-shrink: 0; }
+.record-edit { background: none; border: none; cursor: pointer; color: #bbd4b0; font-size: 15px; padding: 3px 5px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0; }
+.record-edit:hover { color: #3e7e3e; background: #e8f5e8; }
+.record-del { background: none; border: none; cursor: pointer; color: #ccc; font-size: 16px; padding: 3px 5px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0; }
+.record-del:hover { color: #e06060; background: #ffeaea; }
+.empty-msg { text-align: center; color: var(--muted); font-size: 14px; padding: 28px 0; }
+.empty-icon { font-size: 36px; margin-bottom: 8px; }
 
-  .points-display { display: flex; align-items: baseline; gap: 5px; margin-top: 4px; }
-  .points-num { font-size: 40px; font-weight: 800; line-height: 1; }
-  .points-num.yuki { color: var(--yuki-dark); }
-  .points-num.evan { color: var(--evan-dark); }
-  .points-label { font-size: 14px; color: var(--muted); font-weight: 700; }
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(60,80,40,0.35); backdrop-filter: blur(2px); z-index: 100; align-items: center; justify-content: center; }
+.modal-overlay.show { display: flex; }
+.modal { background: var(--card); border-radius: 24px; padding: 26px 22px; max-width: 340px; width: 92%; max-height: 90vh; overflow-y: auto; box-shadow: 0 8px 40px rgba(60,80,40,0.18); animation: popIn 0.22s cubic-bezier(.4,0,.2,1); }
+@keyframes popIn { from { transform: scale(0.85); opacity:0; } to { transform: scale(1); opacity:1; } }
+.modal-icon { font-size: 48px; text-align: center; margin-bottom: 8px; }
+.modal-title { font-size: 18px; font-weight: 800; color: var(--text); margin-bottom: 6px; text-align: center; }
+.modal-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 18px; text-align: center; white-space: pre-line; }
+.modal-btns { display: flex; gap: 10px; margin-top: 16px; }
+.modal-btn { flex: 1; padding: 12px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; }
+.modal-btn.cancel { background: #f0f0e8; color: var(--muted); }
+.modal-btn.cancel:hover { background: #e4e4d8; }
+.modal-btn.confirm { background: #a8d8a8; color: #2a5e2a; }
+.modal-btn.confirm:hover { filter: brightness(0.95); }
+.modal-btn.danger { background: #ffeaea; color: #c04040; }
+.modal-btn.danger:hover { background: #ffd5d5; }
 
-  .redeem-hint { font-size: 12px; color: var(--muted); margin-top: 5px; }
+.mform-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+.mform-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.mform-row .mform-group { margin-bottom: 0; }
+.mform-label { font-size: 11px; font-weight: 700; color: var(--muted); }
+.mform-input, .mform-select { font-family: var(--font); font-size: 14px; color: var(--text); background: #f5faf0; border: 1.5px solid var(--border); border-radius: 10px; padding: 9px 11px; width: 100%; outline: none; transition: border 0.2s; }
+.mform-input:focus, .mform-select:focus { border-color: #3e7e3e; }
+.mform-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a9e7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
 
-  /* Redeem button */
-  .redeem-btn {
-    width: 100%; margin-top: 12px; padding: 12px;
-    border: none; border-radius: 12px; font-family: var(--font);
-    font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .redeem-btn.yuki { background: #d4eccc; color: var(--yuki-dark); border: 2px solid #b0d8a0; }
-  .redeem-btn.evan { background: #fce8b0; color: var(--evan-dark); border: 2px solid #f0cc78; }
-  .redeem-btn:hover { filter: brightness(0.95); }
-  .redeem-btn:disabled { opacity: 0.45; cursor: not-allowed; filter: none; }
-  .redeem-btn:active:not(:disabled) { transform: scale(0.98); }
+.emoji-section-label { font-size: 11px; font-weight: 700; color: var(--muted); margin: 10px 0 5px; }
+.emoji-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+.emoji-btn { width: 42px; height: 42px; border-radius: 10px; border: 2px solid transparent; background: #f5faf0; font-size: 22px; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; justify-content: center; }
+.emoji-btn:hover { background: #e0f0d8; transform: scale(1.1); }
+.emoji-btn.selected { border-color: #3e7e3e; background: #d4ecd4; }
 
-  /* Redeem history */
-  .redeem-history { background: var(--card); border-radius: 14px; padding: 14px; border: 1.5px solid var(--border); margin-bottom: 14px; }
-  .redeem-history-title { font-size: 12px; font-weight: 700; color: var(--muted); margin-bottom: 10px; }
-  .redeem-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f0e8; }
-  .redeem-item:last-child { border-bottom: none; }
-  .redeem-item-icon { font-size: 18px; }
-  .redeem-item-info { flex: 1; }
-  .redeem-item-label { font-size: 13px; font-weight: 700; color: var(--text); }
-  .redeem-item-date { font-size: 11px; color: var(--muted); }
-  .redeem-item-pts { font-size: 13px; font-weight: 800; color: #e06060; }
-  .redeem-item-del {
-    background: none; border: none; cursor: pointer; color: #ccc;
-    font-size: 15px; padding: 3px 5px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0;
-  }
-  .redeem-item-del:hover { color: #e06060; background: #ffeaea; }
+.color-grid { display: flex; flex-wrap: wrap; gap: 8px; margin: 8px 0 4px; }
+.color-swatch { width: 34px; height: 34px; border-radius: 50%; cursor: pointer; border: 3px solid transparent; transition: all 0.15s; }
+.color-swatch:hover { transform: scale(1.1); }
+.color-swatch.selected { border-color: #3d5a3e; }
 
-  /* Section title */
-  .section-title {
-    font-size: 12px; font-weight: 700; color: var(--muted);
-    text-transform: uppercase; letter-spacing: 0.8px; margin: 16px 0 8px;
-  }
-  .section-title-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    cursor: pointer; user-select: none; padding: 2px 0;
-  }
-  .section-title-toggle:hover { color: var(--text); }
-  .toggle-arrow {
-    font-size: 10px; color: var(--muted); transition: transform 0.25s;
-    display: inline-block;
-  }
-  .toggle-arrow.open { transform: rotate(180deg); }
-  .collapsible {
-    overflow: hidden;
-    max-height: 4000px;
-    transition: max-height 0.35s cubic-bezier(.4,0,.2,1), opacity 0.25s;
-    opacity: 1;
-  }
-  .collapsible.collapsed { max-height: 0; opacity: 0; }
-
-  /* Add form */
-  .add-form {
-    background: var(--card); border-radius: var(--radius);
-    padding: 16px; border: 1.5px solid var(--border); margin-bottom: 14px;
-  }
-  .form-row { display: flex; gap: 8px; margin-bottom: 10px; align-items: flex-start; }
-  .form-row:last-child { margin-bottom: 0; }
-  .form-group { flex: 1; display: flex; flex-direction: column; gap: 4px; }
-  .form-label { font-size: 11px; font-weight: 700; color: var(--muted); }
-
-  .form-input, .form-select {
-    font-family: var(--font); font-size: 14px; color: var(--text);
-    background: #f5faf0; border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 9px 11px; width: 100%; outline: none;
-    transition: border 0.2s;
-  }
-  .form-input:focus, .form-select:focus { border-color: var(--yuki-dark); }
-  .form-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a9e7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-  .form-input-pts { flex: none; width: 70px; text-align: center; font-weight: 800; font-size: 16px; }
-
-  .add-btn {
-    width: 100%; padding: 13px; border: none; border-radius: 12px;
-    font-family: var(--font); font-size: 15px; font-weight: 800;
-    cursor: pointer; transition: all 0.2s; margin-top: 4px;
-  }
-  .add-btn.yuki { background: var(--yuki-main); color: #2a5e2a; }
-  .add-btn.evan { background: var(--evan-main); color: #7a5000; }
-  .add-btn:hover { filter: brightness(0.95); }
-  .add-btn:active { transform: scale(0.98); }
-
-  /* Records */
-  .records { display: flex; flex-direction: column; gap: 8px; }
-  .record-item {
-    background: var(--card); border-radius: 14px; padding: 12px 14px;
-    border: 1.5px solid var(--border); display: flex; align-items: center; gap: 12px;
-  }
-  .record-icon { font-size: 22px; flex-shrink: 0; }
-  .record-info { flex: 1; min-width: 0; }
-  .record-reason { font-size: 14px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .record-dates { font-size: 11px; color: var(--muted); margin-top: 2px; }
-  .record-pts { font-size: 17px; font-weight: 800; flex-shrink: 0; }
-  .record-pts.yuki { color: var(--yuki-dark); }
-  .record-pts.evan { color: var(--evan-dark); }
-  .record-del {
-    background: none; border: none; cursor: pointer; color: #ccc;
-    font-size: 16px; padding: 3px 5px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0;
-  }
-  .record-del:hover { color: #e06060; background: #ffeaea; }
-  .record-edit {
-    background: none; border: none; cursor: pointer; color: #bbd4b0;
-    font-size: 15px; padding: 3px 5px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0;
-  }
-  .record-edit:hover { color: var(--yuki-dark); background: var(--yuki-light); }
-  .name-edit-btn {
-    background: none; border: none; cursor: pointer;
-    font-size: 13px; padding: 1px 3px; border-radius: 5px;
-    opacity: 0.4; transition: opacity 0.15s;
-    line-height: 1; flex-shrink: 0;
-  }
-  .name-edit-btn:hover { opacity: 1; }
-
-  /* Edit modal */
-  .edit-modal { max-width: 340px; text-align: left; }
-  .edit-modal .modal-icon { text-align: center; }
-  .edit-modal .modal-title { text-align: center; }
-  .edit-form-group { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-  .edit-form-row { display: flex; gap: 8px; margin-bottom: 12px; }
-  .edit-form-row .edit-form-group { margin-bottom: 0; }
-  .edit-label { font-size: 11px; font-weight: 700; color: var(--muted); }
-  .edit-input, .edit-select {
-    font-family: var(--font); font-size: 14px; color: var(--text);
-    background: #f5faf0; border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 9px 11px; width: 100%; outline: none; transition: border 0.2s;
-  }
-  .edit-input:focus, .edit-select:focus { border-color: var(--yuki-dark); }
-  .edit-select { appearance: none; cursor: pointer; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%237a9e7a' d='M6 8L1 3h10z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-  .edit-input-pts { width: 80px; text-align: center; font-weight: 800; font-size: 16px; }
-  .edit-modal .modal-btns { margin-top: 4px; }
-
-  .empty-msg { text-align: center; color: var(--muted); font-size: 14px; padding: 28px 0; }
-  .empty-icon { font-size: 36px; margin-bottom: 8px; }
-
-  /* Modal overlay */
-  .modal-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(60, 80, 40, 0.35); backdrop-filter: blur(2px);
-    z-index: 100; align-items: center; justify-content: center;
-  }
-  .modal-overlay.show { display: flex; }
-  .modal {
-    background: var(--card); border-radius: 24px; padding: 28px 24px;
-    max-width: 320px; width: 90%; text-align: center;
-    box-shadow: 0 8px 40px rgba(60,80,40,0.18);
-    animation: popIn 0.25s cubic-bezier(.4,0,.2,1);
-  }
-  @keyframes popIn { from { transform: scale(0.85); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-  .modal-icon { font-size: 52px; margin-bottom: 10px; }
-  .modal-title { font-size: 20px; font-weight: 800; color: var(--text); margin-bottom: 6px; }
-  .modal-desc { font-size: 14px; color: var(--muted); line-height: 1.6; margin-bottom: 20px; }
-  .modal-btns { display: flex; gap: 10px; }
-  .modal-btn {
-    flex: 1; padding: 12px; border: none; border-radius: 12px;
-    font-family: var(--font); font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s;
-  }
-  .modal-btn.cancel { background: #f0f0e8; color: var(--muted); }
-  .modal-btn.cancel:hover { background: #e4e4d8; }
-  .modal-btn.confirm-yuki { background: var(--yuki-main); color: #2a5e2a; }
-  .modal-btn.confirm-yuki:hover { filter: brightness(0.95); }
-  .modal-btn.confirm-evan { background: var(--evan-main); color: #7a5000; }
-  .modal-btn.confirm-evan:hover { filter: brightness(0.95); }
-
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px);
-    background: #3d5a3e; color: #fff; padding: 11px 22px;
-    border-radius: 30px; font-size: 14px; font-weight: 700; font-family: var(--font);
-    transition: transform 0.3s cubic-bezier(.4,0,.2,1); z-index: 999; white-space: nowrap;
-    box-shadow: 0 4px 20px rgba(60,80,40,0.25);
-  }
-  .toast.show { transform: translateX(-50%) translateY(0); }
-
-  .screen { display: none; }
-  .screen.active { display: block; }
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: #3d5a3e; color: #fff; padding: 11px 22px; border-radius: 30px; font-size: 14px; font-weight: 700; font-family: var(--font); transition: transform 0.3s cubic-bezier(.4,0,.2,1); z-index: 999; white-space: nowrap; box-shadow: 0 4px 20px rgba(60,80,40,0.25); }
+.toast.show { transform: translateX(-50%) translateY(0); }
+.screen { display: none; }
+.screen.active { display: block; }
 </style>
 </head>
 <body>
 <div class="app">
   <div class="header">
-    <div class="header-title">🌿 Yuki & Evan 的集點森林 🐾</div>
+    <div class="header-title">🌿 集點森林 🐾</div>
   </div>
-
-  <div class="tabs">
-    <button class="tab yuki-active" id="tab-yuki" onclick="switchTo('yuki')">🐰 Yuki</button>
-    <button class="tab" id="tab-evan" onclick="switchTo('evan')">🐻 Evan</button>
-  </div>
-
-  <!-- ===== YUKI ===== -->
-  <div class="screen active" id="screen-yuki">
-    <div class="hero-card yuki">
-      <div class="avatar yuki">🐰</div>
-      <div class="hero-info">
-        <div class="hero-name yuki" style="display:flex;align-items:center;gap:6px;">
-          <span id="yuki-name-display">Yuki</span>
-          <button class="name-edit-btn" onclick="openNameEdit('yuki')" title="編輯名字">✏️</button>
-        </div>
-        <div class="points-display">
-          <div class="points-num yuki" id="yuki-total">0</div>
-          <div class="points-label">點</div>
-        </div>
-        <div class="redeem-hint" id="yuki-hint">集滿 50 點可兌換 100 元零用錢 🎁</div>
-        <button class="redeem-btn yuki" id="yuki-redeem-btn" onclick="openRedeem('yuki')" disabled>
-          🎁 兌換零用錢（需 50 點）
-        </button>
-      </div>
-    </div>
-
-    <div id="yuki-redeem-history-wrap" style="display:none;">
-      <div class="section-title section-title-toggle" onclick="toggleSection('yuki-redeem-body','yuki-redeem-arrow')">
-        <span>兌換記錄 <span id="yuki-redeem-count" style="font-weight:400;opacity:0.7;"></span></span>
-        <span class="toggle-arrow open" id="yuki-redeem-arrow">▼</span>
-      </div>
-      <div class="collapsible" id="yuki-redeem-body">
-        <div class="redeem-history">
-          <div id="yuki-redeem-list"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-title">新增集點</div>
-    <div class="add-form">
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">事由</div>
-          <select class="form-select" id="yuki-reason" onchange="onReasonChange('yuki')">
-            <option value="刷牙洗臉">🪥 刷牙洗臉</option>
-            <option value="換衣服">👕 換衣服</option>
-            <option value="自己睡覺">🌙 自己睡覺</option>
-            <option value="自訂">✏️ 自訂...</option>
-          </select>
-        </div>
-        <div class="form-group" style="flex:none;">
-          <div class="form-label">點數</div>
-          <input class="form-input form-input-pts" type="number" id="yuki-pts" value="1" min="1" max="999">
-        </div>
-      </div>
-      <div class="form-row" id="yuki-custom-row" style="display:none;">
-        <div class="form-group">
-          <div class="form-label">自訂事由</div>
-          <input class="form-input" type="text" id="yuki-custom" placeholder="輸入事由...">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">事由日期</div>
-          <input class="form-input" type="date" id="yuki-event-date">
-        </div>
-        <div class="form-group">
-          <div class="form-label">集點日期</div>
-          <input class="form-input" type="date" id="yuki-record-date">
-        </div>
-      </div>
-      <button class="add-btn yuki" onclick="addRecord('yuki')">🌿 加點！</button>
-    </div>
-
-    <div class="section-title section-title-toggle" onclick="toggleSection('yuki-records-body','yuki-records-arrow')">
-      <span>集點記錄 <span id="yuki-records-count" style="font-weight:400;opacity:0.7;"></span></span>
-      <span class="toggle-arrow open" id="yuki-records-arrow">▼</span>
-    </div>
-    <div class="collapsible" id="yuki-records-body">
-      <div class="records" id="yuki-records">
-        <div class="empty-msg"><div class="empty-icon">🌱</div>還沒有記錄喔，快來集第一點！</div>
-      </div>
+  <div class="tabs-wrap">
+    <div class="tabs" id="tabs-bar">
+      <button class="tab-add" onclick="openAddChild()" title="新增小孩">＋</button>
     </div>
   </div>
+  <div id="screens-wrap"></div>
+</div>
 
-  <!-- ===== EVAN ===== -->
-  <div class="screen" id="screen-evan">
-    <div class="hero-card evan">
-      <div class="avatar evan">🐻</div>
-      <div class="hero-info">
-        <div class="hero-name evan" style="display:flex;align-items:center;gap:6px;">
-          <span id="evan-name-display">Evan</span>
-          <button class="name-edit-btn" onclick="openNameEdit('evan')" title="編輯名字">✏️</button>
-        </div>
-        <div class="points-display">
-          <div class="points-num evan" id="evan-total">0</div>
-          <div class="points-label">點</div>
-        </div>
-        <div class="redeem-hint" id="evan-hint">集滿 50 點可兌換 100 元零用錢 🎁</div>
-        <button class="redeem-btn evan" id="evan-redeem-btn" onclick="openRedeem('evan')" disabled>
-          🎁 兌換零用錢（需 50 點）
-        </button>
+<!-- ADD CHILD -->
+<div class="modal-overlay" id="add-child-modal">
+  <div class="modal">
+    <div class="modal-icon">🌱</div>
+    <div class="modal-title">新增小孩</div>
+    <div style="margin:14px 0 0;">
+      <div class="mform-group">
+        <div class="mform-label">名字</div>
+        <input class="mform-input" type="text" id="add-name-input" placeholder="輸入名字..." maxlength="20" style="font-size:16px;font-weight:700;text-align:center;">
       </div>
+      <div class="mform-label">選一個頭像</div>
+      <div id="add-emoji-picker"></div>
+      <div class="mform-label" style="margin-top:12px;">選一個主題色</div>
+      <div class="color-grid" id="add-color-grid"></div>
     </div>
-
-    <div id="evan-redeem-history-wrap" style="display:none;">
-      <div class="section-title section-title-toggle" onclick="toggleSection('evan-redeem-body','evan-redeem-arrow')">
-        <span>兌換記錄 <span id="evan-redeem-count" style="font-weight:400;opacity:0.7;"></span></span>
-        <span class="toggle-arrow open" id="evan-redeem-arrow">▼</span>
-      </div>
-      <div class="collapsible" id="evan-redeem-body">
-        <div class="redeem-history">
-          <div id="evan-redeem-list"></div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-title">新增集點</div>
-    <div class="add-form">
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">事由</div>
-          <select class="form-select" id="evan-reason" onchange="onReasonChange('evan')">
-            <option value="刷牙洗臉">🪥 刷牙洗臉</option>
-            <option value="換衣服">👕 換衣服</option>
-            <option value="自己睡覺">🌙 自己睡覺</option>
-            <option value="自訂">✏️ 自訂...</option>
-          </select>
-        </div>
-        <div class="form-group" style="flex:none;">
-          <div class="form-label">點數</div>
-          <input class="form-input form-input-pts" type="number" id="evan-pts" value="1" min="1" max="999">
-        </div>
-      </div>
-      <div class="form-row" id="evan-custom-row" style="display:none;">
-        <div class="form-group">
-          <div class="form-label">自訂事由</div>
-          <input class="form-input" type="text" id="evan-custom" placeholder="輸入事由...">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <div class="form-label">事由日期</div>
-          <input class="form-input" type="date" id="evan-event-date">
-        </div>
-        <div class="form-group">
-          <div class="form-label">集點日期</div>
-          <input class="form-input" type="date" id="evan-record-date">
-        </div>
-      </div>
-      <button class="add-btn evan" onclick="addRecord('evan')">🌿 加點！</button>
-    </div>
-
-    <div class="section-title section-title-toggle" onclick="toggleSection('evan-records-body','evan-records-arrow')">
-      <span>集點記錄 <span id="evan-records-count" style="font-weight:400;opacity:0.7;"></span></span>
-      <span class="toggle-arrow open" id="evan-records-arrow">▼</span>
-    </div>
-    <div class="collapsible" id="evan-records-body">
-      <div class="records" id="evan-records">
-        <div class="empty-msg"><div class="empty-icon">🌱</div>還沒有記錄喔，快來集第一點！</div>
-      </div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeAddChild()">取消</button>
+      <button class="modal-btn confirm" onclick="confirmAddChild()">新增 🌿</button>
     </div>
   </div>
 </div>
 
-<!-- Name Edit Modal -->
+<!-- DELETE CHILD -->
+<div class="modal-overlay" id="del-child-modal">
+  <div class="modal">
+    <div class="modal-icon" id="del-child-icon">🐰</div>
+    <div class="modal-title" id="del-child-title">刪除小孩？</div>
+    <div class="modal-desc" id="del-child-desc"></div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeDelChild()">取消</button>
+      <button class="modal-btn danger" onclick="confirmDelChild()">確定刪除</button>
+    </div>
+  </div>
+</div>
+
+<!-- NAME EDIT -->
 <div class="modal-overlay" id="name-edit-modal">
-  <div class="modal" style="max-width:300px;">
+  <div class="modal">
     <div class="modal-icon" id="name-modal-icon">🐰</div>
     <div class="modal-title">編輯名字</div>
-    <div style="margin:16px 0 20px;">
-      <div class="edit-form-group">
-        <div class="edit-label">名字</div>
-        <input class="edit-input" type="text" id="name-edit-input" placeholder="輸入名字..." maxlength="20"
-          style="font-size:18px;font-weight:700;text-align:center;">
+    <div style="margin:14px 0 0;">
+      <div class="mform-group">
+        <div class="mform-label">名字</div>
+        <input class="mform-input" type="text" id="name-edit-input" placeholder="輸入名字..." maxlength="20" style="font-size:18px;font-weight:700;text-align:center;">
       </div>
     </div>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="closeNameEdit()">取消</button>
-      <button class="modal-btn" id="name-confirm-btn" onclick="confirmNameEdit()">儲存 ✓</button>
+      <button class="modal-btn confirm" onclick="confirmNameEdit()">儲存 ✓</button>
     </div>
   </div>
 </div>
 
-<!-- Edit Modal -->
+<!-- AVATAR PICKER -->
+<div class="modal-overlay" id="avatar-modal">
+  <div class="modal">
+    <div class="modal-icon" id="avatar-modal-preview">🐰</div>
+    <div class="modal-title">選擇頭像</div>
+    <div id="avatar-emoji-picker"></div>
+    <div class="mform-label" style="margin-top:12px;">主題色</div>
+    <div class="color-grid" id="avatar-color-grid"></div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeAvatarModal()">取消</button>
+      <button class="modal-btn confirm" onclick="confirmAvatar()">確定 ✓</button>
+    </div>
+  </div>
+</div>
+
+<!-- REDEEM -->
+<div class="modal-overlay" id="redeem-modal">
+  <div class="modal">
+    <div class="modal-icon">🎉</div>
+    <div class="modal-title" id="redeem-modal-title">兌換零用錢</div>
+    <div class="modal-desc" id="redeem-modal-desc"></div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeRedeemModal()">取消</button>
+      <button class="modal-btn confirm" onclick="confirmRedeem()">確定兌換 🎁</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT RECORD -->
 <div class="modal-overlay" id="edit-modal">
-  <div class="modal edit-modal">
-    <div class="modal-icon">✏️</div>
+  <div class="modal" style="text-align:left;">
+    <div class="modal-icon" style="text-align:center;">✏️</div>
     <div class="modal-title">編輯集點記錄</div>
-    <div style="margin: 16px 0 4px;">
-      <div class="edit-form-group">
-        <div class="edit-label">事由</div>
-        <select class="edit-select" id="edit-reason" onchange="onEditReasonChange()">
+    <div style="margin:14px 0 0;">
+      <div class="mform-group">
+        <div class="mform-label">事由</div>
+        <select class="mform-select" id="edit-reason" onchange="onEditReasonChange()">
           <option value="刷牙洗臉">🪥 刷牙洗臉</option>
           <option value="換衣服">👕 換衣服</option>
           <option value="自己睡覺">🌙 自己睡覺</option>
           <option value="自訂">✏️ 自訂...</option>
         </select>
       </div>
-      <div class="edit-form-group" id="edit-custom-group" style="display:none;">
-        <div class="edit-label">自訂事由</div>
-        <input class="edit-input" type="text" id="edit-custom" placeholder="輸入事由...">
+      <div class="mform-group" id="edit-custom-group" style="display:none;">
+        <div class="mform-label">自訂事由</div>
+        <input class="mform-input" type="text" id="edit-custom" placeholder="輸入事由...">
       </div>
-      <div class="edit-form-group">
-        <div class="edit-label">點數</div>
-        <input class="edit-input edit-input-pts" type="number" id="edit-pts" min="1" max="999">
+      <div class="mform-group">
+        <div class="mform-label">點數</div>
+        <input class="mform-input" type="number" id="edit-pts" min="1" max="999" style="width:80px;text-align:center;font-weight:800;font-size:16px;">
       </div>
-      <div class="edit-form-row">
-        <div class="edit-form-group" style="flex:1;">
-          <div class="edit-label">事由日期</div>
-          <input class="edit-input" type="date" id="edit-event-date">
+      <div class="mform-row">
+        <div class="mform-group">
+          <div class="mform-label">事由日期</div>
+          <input class="mform-input" type="date" id="edit-event-date">
         </div>
-        <div class="edit-form-group" style="flex:1;">
-          <div class="edit-label">集點日期</div>
-          <input class="edit-input" type="date" id="edit-record-date">
+        <div class="mform-group">
+          <div class="mform-label">集點日期</div>
+          <input class="mform-input" type="date" id="edit-record-date">
         </div>
       </div>
     </div>
-    <div class="modal-btns edit-modal">
-      <button class="modal-btn cancel" onclick="closeEditModal()">取消</button>
-      <button class="modal-btn" id="edit-confirm-btn" onclick="confirmEdit()">儲存修改 ✓</button>
-    </div>
-  </div>
-</div>
-
-<!-- Redeem Modal -->
-<div class="modal-overlay" id="redeem-modal">
-  <div class="modal">
-    <div class="modal-icon">🎉</div>
-    <div class="modal-title" id="modal-title">兌換零用錢</div>
-    <div class="modal-desc" id="modal-desc">確定要兌換 100 元零用錢嗎？<br>將扣除 50 點。</div>
     <div class="modal-btns">
-      <button class="modal-btn cancel" onclick="closeModal()">取消</button>
-      <button class="modal-btn" id="modal-confirm-btn" onclick="confirmRedeem()">確定兌換 🎁</button>
+      <button class="modal-btn cancel" onclick="closeEditModal()">取消</button>
+      <button class="modal-btn confirm" onclick="confirmEdit()">儲存修改 ✓</button>
     </div>
   </div>
 </div>
@@ -501,299 +272,418 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const REDEEM_COST = 50;
-const REDEEM_REWARD = 100;
-const ICONS = { '刷牙洗臉': '🪥', '換衣服': '👕', '自己睡覺': '🌙' };
+const REDEEM_COST = 50, REDEEM_REWARD = 100;
+const PRESET_REASONS = ['刷牙洗臉','換衣服','自己睡覺'];
+const REASON_ICONS = { '刷牙洗臉':'🪥','換衣服':'👕','自己睡覺':'🌙' };
 const DEFAULT_ICON = '🍀';
+const EMOJI_SETS = [
+  { label:'動物', list:['🐰','🐻','🐱','🐶','🐼','🐨','🦊','🐸','🐧','🦁','🐺','🐮','🐯','🐹','🐭'] },
+  { label:'奇幻', list:['🧚','🦄','🐲','🤖','👾','🧸','🌟','🌈','🍄','🦋'] },
+  { label:'食物與自然', list:['🍓','🍩','🍦','🧁','🍰','🍒','🌻','🌸','🌺','🍀'] },
+];
+const COLORS = [
+  { bg:'#cce8c0', light:'#e8f5e8', border:'#b0d898', dark:'#3e7e3e', tab:'#a8d8a8', tabText:'#2a5e2a' },
+  { bg:'#fce0a0', light:'#fff5e0', border:'#f0cc78', dark:'#b07400', tab:'#f9c784', tabText:'#7a5000' },
+  { bg:'#c8d8f8', light:'#eef2ff', border:'#a0b8f0', dark:'#2a4ea0', tab:'#90b0f0', tabText:'#1a3878' },
+  { bg:'#f8c0d8', light:'#fff0f5', border:'#f0a0c0', dark:'#a03060', tab:'#f09ab8', tabText:'#7a1848' },
+  { bg:'#d0e8f8', light:'#e8f7ff', border:'#a8d0f0', dark:'#1a6080', tab:'#88c8f0', tabText:'#0e4860' },
+  { bg:'#e0d0f8', light:'#f5f0ff', border:'#c0a8f0', dark:'#5030a0', tab:'#b898e8', tabText:'#381878' },
+  { bg:'#f8e0b0', light:'#fff8ec', border:'#f0c878', dark:'#905000', tab:'#f0b840', tabText:'#683800' },
+  { bg:'#c8ecd8', light:'#e8fff2', border:'#98d8b8', dark:'#1a6040', tab:'#70c898', tabText:'#0e4830' },
+];
 
-let state = { yuki: { records: [], redeems: [] }, evan: { records: [], redeems: [] } };
-let pendingRedeem = null;
-let names = { yuki: 'Yuki', evan: 'Evan' };
-let pendingNameKid = null;
+let children = [];
+let activeKid = null;
+let pendingRedeem = null, pendingEdit = null, pendingDelKid = null;
+let pendingNameKid = null, pendingAvatarKid = null;
+let avatarTempEmoji = null, avatarTempColorIdx = 0;
+let addTempEmoji = '🌟', addTempColorIdx = 0;
 
-function deleteRedeem(kid, id) {
-  state[kid].redeems = state[kid].redeems.filter(r => r.id !== id);
-  save();
-  render(kid);
-  showToast('🗑️ 已刪除兌換記錄');
-}
+const today = () => new Date().toISOString().slice(0,10);
+const genId = () => Date.now() + Math.random().toString(36).slice(2,6);
 
-function saveNames() {
-  try { localStorage.setItem('forest_names', JSON.stringify(names)); } catch(e) {}
-}
+function save() { try { localStorage.setItem('forest_v3', JSON.stringify(children)); } catch(e) {} }
 
-function openNameEdit(kid) {
-  pendingNameKid = kid;
-  document.getElementById('name-modal-icon').textContent = kid === 'yuki' ? '🐰' : '🐻';
-  document.getElementById('name-edit-input').value = names[kid];
-  const btn = document.getElementById('name-confirm-btn');
-  btn.className = 'modal-btn confirm-' + kid;
-  document.getElementById('name-edit-modal').classList.add('show');
-  setTimeout(() => document.getElementById('name-edit-input').focus(), 100);
-}
-
-function closeNameEdit() {
-  document.getElementById('name-edit-modal').classList.remove('show');
-  pendingNameKid = null;
-}
-
-function confirmNameEdit() {
-  if (!pendingNameKid) return;
-  const val = document.getElementById('name-edit-input').value.trim();
-  if (!val) return;
-  names[pendingNameKid] = val;
-  document.getElementById(pendingNameKid + '-name-display').textContent = val;
-  saveNames();
-  closeNameEdit();
-  showToast('✅ 名字已更新！');
-}
-
-document.getElementById('name-edit-modal').addEventListener('click', function(e) {
-  if (e.target === this) closeNameEdit();
-});
-
-// allow Enter key to confirm
-document.getElementById('name-edit-input').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter') confirmNameEdit();
-});
-
-function toggleSection(bodyId, arrowId) {
-  const body = document.getElementById(bodyId);
-  const arrow = document.getElementById(arrowId);
-  const isCollapsed = body.classList.contains('collapsed');
-  body.classList.toggle('collapsed', !isCollapsed);
-  arrow.classList.toggle('open', isCollapsed);
-}
-
-function today() { return new Date().toISOString().slice(0,10); }
-
-function init() {
+function load() {
   try {
-    const s = localStorage.getItem('forest_points_v2');
-    if (s) state = JSON.parse(s);
-    // migrate old format
-    ['yuki','evan'].forEach(k => {
-      if (Array.isArray(state[k])) state[k] = { records: state[k], redeems: [] };
-      if (!state[k].redeems) state[k].redeems = [];
-    });
+    const d = localStorage.getItem('forest_v3');
+    if (d) { children = JSON.parse(d); return; }
+    const v2 = localStorage.getItem('forest_points_v2');
+    const ns = JSON.parse(localStorage.getItem('forest_names') || '{}');
+    if (v2) {
+      const s = JSON.parse(v2);
+      children = [
+        { id:'yuki', name:ns.yuki||'Yuki', emoji:'🐰', colorIdx:0, records:s.yuki?.records||[], redeems:s.yuki?.redeems||[] },
+        { id:'evan', name:ns.evan||'Evan', emoji:'🐻', colorIdx:1, records:s.evan?.records||[], redeems:s.evan?.redeems||[] },
+      ];
+      return;
+    }
   } catch(e) {}
-  try {
-    const n = localStorage.getItem('forest_names');
-    if (n) names = Object.assign(names, JSON.parse(n));
-  } catch(e) {}
-  ['yuki','evan'].forEach(k => {
-    document.getElementById(k+'-name-display').textContent = names[k];
-    document.getElementById(k+'-record-date').value = today();
-    document.getElementById(k+'-event-date').value = today();
-    render(k);
+  children = [
+    { id:'yuki', name:'Yuki', emoji:'🐰', colorIdx:0, records:[], redeems:[] },
+    { id:'evan', name:'Evan', emoji:'🐻', colorIdx:1, records:[], redeems:[] },
+  ];
+}
+
+/* ── TABS ── */
+function renderTabs() {
+  const bar = document.getElementById('tabs-bar');
+  const addBtn = bar.querySelector('.tab-add');
+  bar.innerHTML = '';
+  children.forEach(child => {
+    const c = COLORS[child.colorIdx];
+    const btn = document.createElement('button');
+    btn.className = 'tab' + (child.id === activeKid ? ' active' : '');
+    btn.textContent = child.emoji + ' ' + child.name;
+    if (child.id === activeKid) { btn.style.background = c.tab; btn.style.color = c.tabText; }
+    btn.onclick = () => switchTo(child.id);
+    bar.appendChild(btn);
+  });
+  bar.appendChild(addBtn);
+}
+
+/* ── SCREENS ── */
+function renderScreens() {
+  const wrap = document.getElementById('screens-wrap');
+  wrap.querySelectorAll('.screen').forEach(s => { if (!children.find(c => c.id === s.dataset.kid)) s.remove(); });
+  children.forEach(child => {
+    if (!wrap.querySelector(`.screen[data-kid="${child.id}"]`)) {
+      const screen = document.createElement('div');
+      screen.className = 'screen';
+      screen.dataset.kid = child.id;
+      screen.innerHTML = buildScreenHTML(child.id);
+      wrap.appendChild(screen);
+    }
+    wrap.querySelector(`.screen[data-kid="${child.id}"]`).classList.toggle('active', child.id === activeKid);
   });
 }
 
-function save() {
-  try { localStorage.setItem('forest_points_v2', JSON.stringify(state)); } catch(e) {}
-}
-
-function switchTo(kid) {
-  ['yuki','evan'].forEach(k => {
-    document.getElementById('screen-'+k).classList.toggle('active', k===kid);
-    const tab = document.getElementById('tab-'+k);
-    tab.classList.remove('yuki-active','evan-active');
-    if (k===kid) tab.classList.add(k+'-active');
-  });
-}
-
-function onReasonChange(kid) {
-  const v = document.getElementById(kid+'-reason').value;
-  document.getElementById(kid+'-custom-row').style.display = v==='自訂' ? 'flex' : 'none';
-}
-
-function addRecord(kid) {
-  const sel = document.getElementById(kid+'-reason').value;
-  const reason = sel==='自訂'
-    ? (document.getElementById(kid+'-custom').value.trim() || '自訂事由')
-    : sel;
-  const pts = Math.max(1, parseInt(document.getElementById(kid+'-pts').value) || 1);
-  const eventDate = document.getElementById(kid+'-event-date').value || today();
-  const recordDate = document.getElementById(kid+'-record-date').value || today();
-
-  state[kid].records.unshift({ id: Date.now(), reason, pts, eventDate, recordDate });
-  save();
-  render(kid);
-  showToast('🎉 +' + pts + ' 點！加油 ' + (kid==='yuki'?'Yuki 🐰':'Evan 🐻'));
-}
-
-function deleteRecord(kid, id) {
-  state[kid].records = state[kid].records.filter(r => r.id !== id);
-  save();
-  render(kid);
-}
-
-function openRedeem(kid) {
-  const total = state[kid].records.reduce((s,r) => s+r.pts, 0)
-              - state[kid].redeems.reduce((s,r) => s+r.cost, 0);
-  if (total < REDEEM_COST) return;
-  pendingRedeem = kid;
-  document.getElementById('modal-title').textContent = (kid==='yuki'?'🐰 Yuki':'🐻 Evan') + ' 兌換零用錢';
-  document.getElementById('modal-desc').textContent = '確定要兌換 ' + REDEEM_REWARD + ' 元零用錢嗎？\n兌換後將扣除 ' + REDEEM_COST + ' 點。';
-  const btn = document.getElementById('modal-confirm-btn');
-  btn.className = 'modal-btn confirm-' + kid;
-  document.getElementById('redeem-modal').classList.add('show');
-}
-
-function closeModal() {
-  document.getElementById('redeem-modal').classList.remove('show');
-  pendingRedeem = null;
-}
-
-function confirmRedeem() {
-  if (!pendingRedeem) return;
-  const kid = pendingRedeem;
-  state[kid].redeems.unshift({ id: Date.now(), cost: REDEEM_COST, reward: REDEEM_REWARD, date: today() });
-  save();
-  render(kid);
-  closeModal();
-  showToast('🎁 兌換成功！記得給 ' + REDEEM_REWARD + ' 元零用錢喔！');
-}
-
-function render(kid) {
-  const records = state[kid].records;
-  const redeems = state[kid].redeems;
-  const earned = records.reduce((s,r) => s+r.pts, 0);
-  const spent = redeems.reduce((s,r) => s+r.cost, 0);
-  const total = earned - spent;
-
-  document.getElementById(kid+'-total').textContent = total;
-
-  // redeem button
-  const btn = document.getElementById(kid+'-redeem-btn');
-  btn.disabled = total < REDEEM_COST;
-  const hint = document.getElementById(kid+'-hint');
-  if (total >= REDEEM_COST) {
-    hint.textContent = '太棒了！可以兌換零用錢囉 🎉';
-  } else {
-    const diff = REDEEM_COST - total;
-    hint.textContent = '再集 ' + diff + ' 點就可以兌換 ' + REDEEM_REWARD + ' 元零用錢 🎁';
-  }
-
-  // redeem history
-  const rhWrap = document.getElementById(kid+'-redeem-history-wrap');
-  const rhList = document.getElementById(kid+'-redeem-list');
-  if (redeems.length > 0) {
-    rhWrap.style.display = 'block';
-    rhList.innerHTML = redeems.map(r =>
-      `<div class="redeem-item">
-        <div class="redeem-item-icon">🎁</div>
-        <div class="redeem-item-info">
-          <div class="redeem-item-label">兌換 ${r.reward} 元零用錢</div>
-          <div class="redeem-item-date">${r.date}</div>
+function buildScreenHTML(kid) {
+  return `
+    <div class="hero-card" id="hero-${kid}">
+      <div class="avatar-wrap" onclick="openAvatarModal('${kid}')">
+        <div class="avatar" id="avatar-${kid}"></div>
+        <div class="avatar-edit-hint">✏️</div>
+      </div>
+      <div class="hero-info">
+        <div class="hero-name-row">
+          <div class="hero-name" id="hero-name-${kid}"></div>
+          <button class="name-edit-btn" onclick="openNameEdit('${kid}')">✏️</button>
         </div>
-        <div class="redeem-item-pts">-${r.cost} 點</div>
-        <button class="redeem-item-del" onclick="deleteRedeem('${kid}',${r.id})" title="刪除">✕</button>
-      </div>`
-    ).join('');
-  } else {
-    rhWrap.style.display = 'none';
-  }
+        <div class="points-display">
+          <div class="points-num" id="total-${kid}">0</div>
+          <div class="points-label">點</div>
+        </div>
+        <div class="redeem-hint" id="hint-${kid}"></div>
+        <button class="redeem-btn" id="redeem-btn-${kid}" onclick="openRedeemModal('${kid}')" disabled>
+          🎁 兌換零用錢（需 ${REDEEM_COST} 點）
+        </button>
+      </div>
+    </div>
 
-  // records list
-  // update counts
-  const rcountEl = document.getElementById(kid+'-records-count');
-  if (rcountEl) rcountEl.textContent = records.length > 0 ? '(' + records.length + ')' : '';
-  const dcountEl = document.getElementById(kid+'-redeem-count');
-  if (dcountEl) dcountEl.textContent = redeems.length > 0 ? '(' + redeems.length + ')' : '';
+    <div id="redeem-wrap-${kid}" style="display:none;">
+      <div class="section-title section-title-toggle" onclick="toggleSection('redeem-body-${kid}','redeem-arrow-${kid}')">
+        <span>兌換記錄 <span id="redeem-count-${kid}" style="font-weight:400;opacity:0.7;"></span></span>
+        <span class="toggle-arrow open" id="redeem-arrow-${kid}">▼</span>
+      </div>
+      <div class="collapsible" id="redeem-body-${kid}">
+        <div class="redeem-history"><div id="redeem-list-${kid}"></div></div>
+      </div>
+    </div>
 
-  const container = document.getElementById(kid+'-records');
-  if (records.length === 0) {
-    container.innerHTML = '<div class="empty-msg"><div class="empty-icon">🌱</div>還沒有記錄喔，快來集第一點！</div>';
-    return;
-  }
-  container.innerHTML = records.map(r => {
-    const icon = ICONS[r.reason] || DEFAULT_ICON;
-    return `<div class="record-item">
-      <div class="record-icon">${icon}</div>
+    <div class="section-title">新增集點</div>
+    <div class="add-form">
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">事由</div>
+          <select class="form-select" id="reason-${kid}" onchange="onReasonChange('${kid}')">
+            <option value="刷牙洗臉">🪥 刷牙洗臉</option>
+            <option value="換衣服">👕 換衣服</option>
+            <option value="自己睡覺">🌙 自己睡覺</option>
+            <option value="自訂">✏️ 自訂...</option>
+          </select>
+        </div>
+        <div class="form-group" style="flex:none;">
+          <div class="form-label">點數</div>
+          <input class="form-input form-input-pts" type="number" id="pts-${kid}" value="1" min="1" max="999">
+        </div>
+      </div>
+      <div class="form-row" id="custom-row-${kid}" style="display:none;">
+        <div class="form-group">
+          <div class="form-label">自訂事由</div>
+          <input class="form-input" type="text" id="custom-${kid}" placeholder="輸入事由...">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <div class="form-label">事由日期</div>
+          <input class="form-input" type="date" id="event-date-${kid}" value="${today()}">
+        </div>
+        <div class="form-group">
+          <div class="form-label">集點日期</div>
+          <input class="form-input" type="date" id="record-date-${kid}" value="${today()}">
+        </div>
+      </div>
+      <button class="add-btn" id="add-btn-${kid}" onclick="addRecord('${kid}')">🌿 加點！</button>
+    </div>
+
+    <div class="section-title section-title-toggle" onclick="toggleSection('records-body-${kid}','records-arrow-${kid}')">
+      <span>集點記錄 <span id="records-count-${kid}" style="font-weight:400;opacity:0.7;"></span></span>
+      <span class="toggle-arrow open" id="records-arrow-${kid}">▼</span>
+    </div>
+    <div class="collapsible" id="records-body-${kid}">
+      <div class="records" id="records-${kid}">
+        <div class="empty-msg"><div class="empty-icon">🌱</div>還沒有記錄喔，快來集第一點！</div>
+      </div>
+    </div>
+
+    <button class="delete-child-btn" onclick="openDelChild('${kid}')">🗑️ 刪除 <span id="del-name-${kid}"></span> 的資料</button>
+  `;
+}
+
+function applyStyle(child) {
+  const c = COLORS[child.colorIdx];
+  const k = child.id;
+  const set = (id, fn) => { const el = document.getElementById(id); if(el) fn(el); };
+  set('hero-'+k, el => { el.style.background=c.light; el.style.borderColor=c.border; });
+  set('avatar-'+k, el => { el.textContent=child.emoji; el.style.background=c.bg; });
+  set('hero-name-'+k, el => { el.textContent=child.name; el.style.color=c.dark; });
+  set('total-'+k, el => { el.style.color=c.dark; });
+  set('redeem-btn-'+k, el => { el.style.background=c.light; el.style.color=c.dark; el.style.border='2px solid '+c.border; });
+  set('add-btn-'+k, el => { el.style.background=c.tab; el.style.color=c.tabText; });
+  set('del-name-'+k, el => { el.textContent=child.name; });
+}
+
+function renderChild(kid) {
+  const child = children.find(c => c.id === kid);
+  if (!child) return;
+  applyStyle(child);
+  const records = child.records, redeems = child.redeems;
+  const total = records.reduce((s,r)=>s+r.pts,0) - redeems.reduce((s,r)=>s+r.cost,0);
+  const c = COLORS[child.colorIdx];
+  document.getElementById('total-'+kid).textContent = total;
+  document.getElementById('hint-'+kid).textContent = total >= REDEEM_COST
+    ? '太棒了！可以兌換零用錢囉 🎉'
+    : '再集 '+(REDEEM_COST-total)+' 點就可以兌換 '+REDEEM_REWARD+' 元零用錢 🎁';
+  document.getElementById('redeem-btn-'+kid).disabled = total < REDEEM_COST;
+
+  const rc = document.getElementById('records-count-'+kid);
+  if(rc) rc.textContent = records.length ? '('+records.length+')' : '';
+  const dc = document.getElementById('redeem-count-'+kid);
+  if(dc) dc.textContent = redeems.length ? '('+redeems.length+')' : '';
+
+  const rw = document.getElementById('redeem-wrap-'+kid);
+  const rl = document.getElementById('redeem-list-'+kid);
+  rw.style.display = redeems.length ? 'block' : 'none';
+  rl.innerHTML = redeems.map(r=>`
+    <div class="redeem-item">
+      <div class="redeem-item-icon">🎁</div>
+      <div class="redeem-item-info">
+        <div class="redeem-item-label">兌換 ${r.reward} 元零用錢</div>
+        <div class="redeem-item-date">${r.date}</div>
+      </div>
+      <div class="redeem-item-pts">-${r.cost} 點</div>
+      <button class="redeem-item-del" onclick="deleteRedeem('${kid}',${r.id})">✕</button>
+    </div>`).join('');
+
+  const cont = document.getElementById('records-'+kid);
+  if (!records.length) { cont.innerHTML='<div class="empty-msg"><div class="empty-icon">🌱</div>還沒有記錄喔，快來集第一點！</div>'; return; }
+  cont.innerHTML = records.map(r=>`
+    <div class="record-item">
+      <div class="record-icon">${REASON_ICONS[r.reason]||DEFAULT_ICON}</div>
       <div class="record-info">
         <div class="record-reason">${escHtml(r.reason)}</div>
         <div class="record-dates">事由：${r.eventDate}&nbsp;｜&nbsp;集點：${r.recordDate}</div>
       </div>
-      <div class="record-pts ${kid}">+${r.pts}</div>
-      <button class="record-edit" onclick="openEdit('${kid}',${r.id})" title="編輯">✏️</button>
-      <button class="record-del" onclick="deleteRecord('${kid}',${r.id})" title="刪除">✕</button>
-    </div>`;
-  }).join('');
+      <div class="record-pts" style="color:${c.dark}">+${r.pts}</div>
+      <button class="record-edit" onclick="openEdit('${kid}',${r.id})">✏️</button>
+      <button class="record-del" onclick="deleteRecord('${kid}',${r.id})">✕</button>
+    </div>`).join('');
 }
 
-function escHtml(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function renderAll() { renderTabs(); renderScreens(); children.forEach(c=>renderChild(c.id)); }
+
+/* ── NAV ── */
+function switchTo(kid) {
+  activeKid = kid;
+  renderTabs();
+  document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.dataset.kid===kid));
 }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
+/* ── EMOJI / COLOR PICKERS ── */
+function buildEmojiPicker(containerId, selected, onSelect) {
+  const wrap = document.getElementById(containerId);
+  wrap.innerHTML = '';
+  EMOJI_SETS.forEach(set => {
+    const lbl = document.createElement('div'); lbl.className='emoji-section-label'; lbl.textContent=set.label; wrap.appendChild(lbl);
+    const grid = document.createElement('div'); grid.className='emoji-grid';
+    set.list.forEach(em => {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn'+(em===selected?' selected':'');
+      btn.textContent = em;
+      btn.onclick = () => { onSelect(em); buildEmojiPicker(containerId, em, onSelect); };
+      grid.appendChild(btn);
+    });
+    wrap.appendChild(grid);
+  });
 }
 
-// close modal on overlay click
-document.getElementById('redeem-modal').addEventListener('click', function(e){
-  if(e.target===this) closeModal();
-});
-document.getElementById('edit-modal').addEventListener('click', function(e){
-  if(e.target===this) closeEditModal();
-});
+function buildColorGrid(containerId, selectedIdx, onSelect) {
+  const wrap = document.getElementById(containerId); wrap.innerHTML='';
+  COLORS.forEach((c,i) => {
+    const sw = document.createElement('div');
+    sw.className = 'color-swatch'+(i===selectedIdx?' selected':'');
+    sw.style.background = c.tab;
+    sw.onclick = () => { onSelect(i); buildColorGrid(containerId, i, onSelect); };
+    wrap.appendChild(sw);
+  });
+}
 
-let pendingEdit = null; // { kid, id }
-const PRESET_REASONS = ['刷牙洗臉','換衣服','自己睡覺'];
+/* ── ADD CHILD ── */
+function openAddChild() {
+  addTempEmoji='🌟'; addTempColorIdx=0;
+  document.getElementById('add-name-input').value='';
+  buildEmojiPicker('add-emoji-picker', addTempEmoji, em=>{ addTempEmoji=em; });
+  buildColorGrid('add-color-grid', addTempColorIdx, i=>{ addTempColorIdx=i; });
+  document.getElementById('add-child-modal').classList.add('show');
+  setTimeout(()=>document.getElementById('add-name-input').focus(),100);
+}
+function closeAddChild() { document.getElementById('add-child-modal').classList.remove('show'); }
+function confirmAddChild() {
+  const name = document.getElementById('add-name-input').value.trim();
+  if (!name) { showToast('⚠️ 請輸入名字！'); return; }
+  const child = { id:genId(), name, emoji:addTempEmoji||'🌟', colorIdx:addTempColorIdx, records:[], redeems:[] };
+  children.push(child);
+  save(); renderAll(); switchTo(child.id); closeAddChild();
+  showToast('🌱 已新增 '+name+'！');
+}
 
-function openEdit(kid, id) {
-  const rec = state[kid].records.find(r => r.id === id);
-  if (!rec) return;
-  pendingEdit = { kid, id };
+/* ── DELETE CHILD ── */
+function openDelChild(kid) {
+  const child = children.find(c=>c.id===kid); pendingDelKid=kid;
+  document.getElementById('del-child-icon').textContent = child.emoji;
+  document.getElementById('del-child-title').textContent = '刪除 '+child.name+'？';
+  document.getElementById('del-child-desc').textContent = '這將永久刪除 '+child.name+' 的所有集點和兌換記錄，無法復原。';
+  document.getElementById('del-child-modal').classList.add('show');
+}
+function closeDelChild() { document.getElementById('del-child-modal').classList.remove('show'); pendingDelKid=null; }
+function confirmDelChild() {
+  if (!pendingDelKid) return;
+  const name = children.find(c=>c.id===pendingDelKid)?.name||'';
+  children = children.filter(c=>c.id!==pendingDelKid);
+  if (activeKid===pendingDelKid) activeKid = children.length ? children[0].id : null;
+  save(); renderAll(); if (activeKid) switchTo(activeKid);
+  closeDelChild(); showToast('🗑️ 已刪除 '+name+' 的資料');
+}
 
-  const isPreset = PRESET_REASONS.includes(rec.reason);
-  const sel = document.getElementById('edit-reason');
-  sel.value = isPreset ? rec.reason : '自訂';
-  document.getElementById('edit-custom-group').style.display = isPreset ? 'none' : 'block';
-  document.getElementById('edit-custom').value = isPreset ? '' : rec.reason;
-  document.getElementById('edit-pts').value = rec.pts;
-  document.getElementById('edit-event-date').value = rec.eventDate;
-  document.getElementById('edit-record-date').value = rec.recordDate;
+/* ── NAME EDIT ── */
+function openNameEdit(kid) {
+  pendingNameKid=kid; const child=children.find(c=>c.id===kid);
+  document.getElementById('name-modal-icon').textContent=child.emoji;
+  document.getElementById('name-edit-input').value=child.name;
+  document.getElementById('name-edit-modal').classList.add('show');
+  setTimeout(()=>document.getElementById('name-edit-input').focus(),100);
+}
+function closeNameEdit() { document.getElementById('name-edit-modal').classList.remove('show'); pendingNameKid=null; }
+function confirmNameEdit() {
+  if (!pendingNameKid) return;
+  const val = document.getElementById('name-edit-input').value.trim(); if(!val) return;
+  children.find(c=>c.id===pendingNameKid).name=val;
+  save(); renderAll(); switchTo(pendingNameKid); closeNameEdit(); showToast('✅ 名字已更新！');
+}
 
-  const btn = document.getElementById('edit-confirm-btn');
-  btn.className = 'modal-btn confirm-' + kid;
+/* ── AVATAR ── */
+function openAvatarModal(kid) {
+  pendingAvatarKid=kid; const child=children.find(c=>c.id===kid);
+  avatarTempEmoji=child.emoji; avatarTempColorIdx=child.colorIdx;
+  document.getElementById('avatar-modal-preview').textContent=avatarTempEmoji;
+  buildEmojiPicker('avatar-emoji-picker', avatarTempEmoji, em=>{ avatarTempEmoji=em; document.getElementById('avatar-modal-preview').textContent=em; });
+  buildColorGrid('avatar-color-grid', avatarTempColorIdx, i=>{ avatarTempColorIdx=i; });
+  document.getElementById('avatar-modal').classList.add('show');
+}
+function closeAvatarModal() { document.getElementById('avatar-modal').classList.remove('show'); pendingAvatarKid=null; }
+function confirmAvatar() {
+  if (!pendingAvatarKid) return;
+  const child=children.find(c=>c.id===pendingAvatarKid);
+  child.emoji=avatarTempEmoji; child.colorIdx=avatarTempColorIdx;
+  save(); renderAll(); switchTo(pendingAvatarKid); closeAvatarModal(); showToast('🎨 頭像已更新！');
+}
+
+/* ── RECORDS ── */
+function onReasonChange(kid) {
+  document.getElementById('custom-row-'+kid).style.display = document.getElementById('reason-'+kid).value==='自訂'?'flex':'none';
+}
+function addRecord(kid) {
+  const sel=document.getElementById('reason-'+kid).value;
+  const reason=sel==='自訂'?(document.getElementById('custom-'+kid).value.trim()||'自訂事由'):sel;
+  const pts=Math.max(1,parseInt(document.getElementById('pts-'+kid).value)||1);
+  const child=children.find(c=>c.id===kid);
+  child.records.unshift({ id:Date.now(), reason, pts, eventDate:document.getElementById('event-date-'+kid).value||today(), recordDate:document.getElementById('record-date-'+kid).value||today() });
+  save(); renderChild(kid); showToast('🎉 +'+pts+' 點！加油 '+child.name+' '+child.emoji);
+}
+function deleteRecord(kid,id) { const child=children.find(c=>c.id===kid); child.records=child.records.filter(r=>r.id!==id); save(); renderChild(kid); }
+function deleteRedeem(kid,id) { const child=children.find(c=>c.id===kid); child.redeems=child.redeems.filter(r=>r.id!==id); save(); renderChild(kid); showToast('🗑️ 已刪除兌換記錄'); }
+
+/* ── REDEEM ── */
+function openRedeemModal(kid) {
+  const child=children.find(c=>c.id===kid);
+  const total=child.records.reduce((s,r)=>s+r.pts,0)-child.redeems.reduce((s,r)=>s+r.cost,0);
+  if(total<REDEEM_COST) return; pendingRedeem=kid;
+  document.getElementById('redeem-modal-title').textContent=child.emoji+' '+child.name+' 兌換零用錢';
+  document.getElementById('redeem-modal-desc').textContent='確定要兌換 '+REDEEM_REWARD+' 元零用錢嗎？\n兌換後將扣除 '+REDEEM_COST+' 點。';
+  document.getElementById('redeem-modal').classList.add('show');
+}
+function closeRedeemModal() { document.getElementById('redeem-modal').classList.remove('show'); pendingRedeem=null; }
+function confirmRedeem() {
+  if(!pendingRedeem) return;
+  children.find(c=>c.id===pendingRedeem).redeems.unshift({ id:Date.now(), cost:REDEEM_COST, reward:REDEEM_REWARD, date:today() });
+  save(); renderChild(pendingRedeem); closeRedeemModal(); showToast('🎁 兌換成功！記得給 '+REDEEM_REWARD+' 元零用錢喔！');
+}
+
+/* ── EDIT RECORD ── */
+function openEdit(kid,id) {
+  const rec=children.find(c=>c.id===kid).records.find(r=>r.id===id); if(!rec) return;
+  pendingEdit={kid,id};
+  const isPreset=PRESET_REASONS.includes(rec.reason);
+  document.getElementById('edit-reason').value=isPreset?rec.reason:'自訂';
+  document.getElementById('edit-custom-group').style.display=isPreset?'none':'block';
+  document.getElementById('edit-custom').value=isPreset?'':rec.reason;
+  document.getElementById('edit-pts').value=rec.pts;
+  document.getElementById('edit-event-date').value=rec.eventDate;
+  document.getElementById('edit-record-date').value=rec.recordDate;
   document.getElementById('edit-modal').classList.add('show');
 }
-
-function onEditReasonChange() {
-  const v = document.getElementById('edit-reason').value;
-  document.getElementById('edit-custom-group').style.display = v === '自訂' ? 'block' : 'none';
-}
-
-function closeEditModal() {
-  document.getElementById('edit-modal').classList.remove('show');
-  pendingEdit = null;
-}
-
+function onEditReasonChange() { document.getElementById('edit-custom-group').style.display=document.getElementById('edit-reason').value==='自訂'?'block':'none'; }
+function closeEditModal() { document.getElementById('edit-modal').classList.remove('show'); pendingEdit=null; }
 function confirmEdit() {
-  if (!pendingEdit) return;
-  const { kid, id } = pendingEdit;
-  const rec = state[kid].records.find(r => r.id === id);
-  if (!rec) return;
-
-  const sel = document.getElementById('edit-reason').value;
-  rec.reason = sel === '自訂'
-    ? (document.getElementById('edit-custom').value.trim() || '自訂事由')
-    : sel;
-  rec.pts = Math.max(1, parseInt(document.getElementById('edit-pts').value) || 1);
-  rec.eventDate = document.getElementById('edit-event-date').value || today();
-  rec.recordDate = document.getElementById('edit-record-date').value || today();
-
-  save();
-  render(kid);
-  closeEditModal();
-  showToast('✅ 已更新記錄！');
+  if(!pendingEdit) return; const {kid,id}=pendingEdit;
+  const rec=children.find(c=>c.id===kid).records.find(r=>r.id===id); if(!rec) return;
+  const sel=document.getElementById('edit-reason').value;
+  rec.reason=sel==='自訂'?(document.getElementById('edit-custom').value.trim()||'自訂事由'):sel;
+  rec.pts=Math.max(1,parseInt(document.getElementById('edit-pts').value)||1);
+  rec.eventDate=document.getElementById('edit-event-date').value||today();
+  rec.recordDate=document.getElementById('edit-record-date').value||today();
+  save(); renderChild(kid); closeEditModal(); showToast('✅ 已更新記錄！');
 }
 
-init();
+/* ── HELPERS ── */
+function toggleSection(bodyId,arrowId) {
+  const body=document.getElementById(bodyId), arrow=document.getElementById(arrowId);
+  const c=body.classList.contains('collapsed');
+  body.classList.toggle('collapsed',!c); arrow.classList.toggle('open',c);
+}
+function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function showToast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+['add-child-modal','del-child-modal','name-edit-modal','avatar-modal','redeem-modal','edit-modal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click',function(e){if(e.target===this)this.classList.remove('show');});
+});
+document.getElementById('name-edit-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmNameEdit();});
+document.getElementById('add-name-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmAddChild();});
+
+load();
+activeKid = children.length ? children[0].id : null;
+renderAll();
 </script>
 </body>
 </html>
