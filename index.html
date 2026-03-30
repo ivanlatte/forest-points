@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🌿 我們的集點森林 — Yuki & Evan</title>
+<title>🌿 Yuki & Evan 的集點森林</title>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -183,6 +183,13 @@
     font-size: 15px; padding: 3px 5px; border-radius: 6px; transition: all 0.15s; flex-shrink: 0;
   }
   .record-edit:hover { color: var(--yuki-dark); background: var(--yuki-light); }
+  .name-edit-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 13px; padding: 1px 3px; border-radius: 5px;
+    opacity: 0.4; transition: opacity 0.15s;
+    line-height: 1; flex-shrink: 0;
+  }
+  .name-edit-btn:hover { opacity: 1; }
 
   /* Edit modal */
   .edit-modal { max-width: 340px; text-align: left; }
@@ -251,8 +258,7 @@
 <body>
 <div class="app">
   <div class="header">
-    <div class="header-title">🌿 我們的集點森林 🐾</div>
-    <div class="header-sub">Yuki & Evan 的積分小天地</div>
+    <div class="header-title">🌿 Yuki & Evan 的集點森林 🐾</div>
   </div>
 
   <div class="tabs">
@@ -265,7 +271,10 @@
     <div class="hero-card yuki">
       <div class="avatar yuki">🐰</div>
       <div class="hero-info">
-        <div class="hero-name yuki">Yuki</div>
+        <div class="hero-name yuki" style="display:flex;align-items:center;gap:6px;">
+          <span id="yuki-name-display">Yuki</span>
+          <button class="name-edit-btn" onclick="openNameEdit('yuki')" title="編輯名字">✏️</button>
+        </div>
         <div class="points-display">
           <div class="points-num yuki" id="yuki-total">0</div>
           <div class="points-label">點</div>
@@ -341,7 +350,10 @@
     <div class="hero-card evan">
       <div class="avatar evan">🐻</div>
       <div class="hero-info">
-        <div class="hero-name evan">Evan</div>
+        <div class="hero-name evan" style="display:flex;align-items:center;gap:6px;">
+          <span id="evan-name-display">Evan</span>
+          <button class="name-edit-btn" onclick="openNameEdit('evan')" title="編輯名字">✏️</button>
+        </div>
         <div class="points-display">
           <div class="points-num evan" id="evan-total">0</div>
           <div class="points-label">點</div>
@@ -413,6 +425,25 @@
   </div>
 </div>
 
+<!-- Name Edit Modal -->
+<div class="modal-overlay" id="name-edit-modal">
+  <div class="modal" style="max-width:300px;">
+    <div class="modal-icon" id="name-modal-icon">🐰</div>
+    <div class="modal-title">編輯名字</div>
+    <div style="margin:16px 0 20px;">
+      <div class="edit-form-group">
+        <div class="edit-label">名字</div>
+        <input class="edit-input" type="text" id="name-edit-input" placeholder="輸入名字..." maxlength="20"
+          style="font-size:18px;font-weight:700;text-align:center;">
+      </div>
+    </div>
+    <div class="modal-btns">
+      <button class="modal-btn cancel" onclick="closeNameEdit()">取消</button>
+      <button class="modal-btn" id="name-confirm-btn" onclick="confirmNameEdit()">儲存 ✓</button>
+    </div>
+  </div>
+</div>
+
 <!-- Edit Modal -->
 <div class="modal-overlay" id="edit-modal">
   <div class="modal edit-modal">
@@ -477,6 +508,8 @@ const DEFAULT_ICON = '🍀';
 
 let state = { yuki: { records: [], redeems: [] }, evan: { records: [], redeems: [] } };
 let pendingRedeem = null;
+let names = { yuki: 'Yuki', evan: 'Evan' };
+let pendingNameKid = null;
 
 function deleteRedeem(kid, id) {
   state[kid].redeems = state[kid].redeems.filter(r => r.id !== id);
@@ -484,6 +517,45 @@ function deleteRedeem(kid, id) {
   render(kid);
   showToast('🗑️ 已刪除兌換記錄');
 }
+
+function saveNames() {
+  try { localStorage.setItem('forest_names', JSON.stringify(names)); } catch(e) {}
+}
+
+function openNameEdit(kid) {
+  pendingNameKid = kid;
+  document.getElementById('name-modal-icon').textContent = kid === 'yuki' ? '🐰' : '🐻';
+  document.getElementById('name-edit-input').value = names[kid];
+  const btn = document.getElementById('name-confirm-btn');
+  btn.className = 'modal-btn confirm-' + kid;
+  document.getElementById('name-edit-modal').classList.add('show');
+  setTimeout(() => document.getElementById('name-edit-input').focus(), 100);
+}
+
+function closeNameEdit() {
+  document.getElementById('name-edit-modal').classList.remove('show');
+  pendingNameKid = null;
+}
+
+function confirmNameEdit() {
+  if (!pendingNameKid) return;
+  const val = document.getElementById('name-edit-input').value.trim();
+  if (!val) return;
+  names[pendingNameKid] = val;
+  document.getElementById(pendingNameKid + '-name-display').textContent = val;
+  saveNames();
+  closeNameEdit();
+  showToast('✅ 名字已更新！');
+}
+
+document.getElementById('name-edit-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeNameEdit();
+});
+
+// allow Enter key to confirm
+document.getElementById('name-edit-input').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') confirmNameEdit();
+});
 
 function toggleSection(bodyId, arrowId) {
   const body = document.getElementById(bodyId);
@@ -505,7 +577,12 @@ function init() {
       if (!state[k].redeems) state[k].redeems = [];
     });
   } catch(e) {}
+  try {
+    const n = localStorage.getItem('forest_names');
+    if (n) names = Object.assign(names, JSON.parse(n));
+  } catch(e) {}
   ['yuki','evan'].forEach(k => {
+    document.getElementById(k+'-name-display').textContent = names[k];
     document.getElementById(k+'-record-date').value = today();
     document.getElementById(k+'-event-date').value = today();
     render(k);
