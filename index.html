@@ -295,23 +295,25 @@ let addTempEmoji = '🌟', addTempColorIdx = 0;
 const today = () => new Date().toISOString().slice(0,10);
 const genId = () => Date.now() + Math.random().toString(36).slice(2,6);
 
-function save() { try { localStorage.setItem('forest_v3', JSON.stringify(children)); } catch(e) {} }
-
-function load() {
+// ── FIREBASE SAVE / LOAD ──
+async function save() {
   try {
-    const d = localStorage.getItem('forest_v3');
-    if (d) { children = JSON.parse(d); return; }
-    const v2 = localStorage.getItem('forest_points_v2');
-    const ns = JSON.parse(localStorage.getItem('forest_names') || '{}');
-    if (v2) {
-      const s = JSON.parse(v2);
-      children = [
-        { id:'yuki', name:ns.yuki||'Yuki', emoji:'🐰', colorIdx:0, records:s.yuki?.records||[], redeems:s.yuki?.redeems||[] },
-        { id:'evan', name:ns.evan||'Evan', emoji:'🐻', colorIdx:1, records:s.evan?.records||[], redeems:s.evan?.redeems||[] },
-      ];
+    await window._fbSetDoc(
+      window._fbDoc(window._db, 'data', 'children'),
+      { children: JSON.stringify(children) }
+    );
+  } catch(e) { console.error('Firebase save error', e); }
+}
+
+async function load() {
+  try {
+    const snap = await window._fbGetDoc(window._fbDoc(window._db, 'data', 'children'));
+    if (snap.exists()) {
+      children = JSON.parse(snap.data().children);
       return;
     }
-  } catch(e) {}
+  } catch(e) { console.error('Firebase load error', e); }
+  // default
   children = [
     { id:'yuki', name:'Yuki', emoji:'🐰', colorIdx:0, records:[], redeems:[] },
     { id:'evan', name:'Evan', emoji:'🐻', colorIdx:1, records:[], redeems:[] },
@@ -677,22 +679,50 @@ function showToast(msg) { const t=document.getElementById('toast'); t.textConten
 document.getElementById('name-edit-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmNameEdit();});
 document.getElementById('add-name-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmAddChild();});
 
-load();
-activeKid = children.length ? children[0].id : null;
-renderAll();
+// ── FIREBASE INIT ──
+async function initApp() {
+  const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js');
+  const { getFirestore, doc, getDoc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js');
 
-// Re-set date inputs when iPad wakes up or tab becomes visible again
-document.addEventListener('visibilitychange', function() {
-  if (document.visibilityState === 'visible') {
-    const todayVal = today();
-    children.forEach(child => {
-      const ed = document.getElementById('event-date-'+child.id);
-      const rd = document.getElementById('record-date-'+child.id);
-      if (ed) ed.value = todayVal;
-      if (rd) rd.value = todayVal;
-    });
-  }
-});
+  const firebaseConfig = {
+    apiKey: "AIzaSyDjO8a_VdEJ7brZK2I8ccMDm3aPmoHm1Y0",
+    authDomain: "forest-points.firebaseapp.com",
+    projectId: "forest-points",
+    storageBucket: "forest-points.firebasestorage.app",
+    messagingSenderId: "677944383021",
+    appId: "1:677944383021:web:5d813aca482c8bf5a5caa4",
+    measurementId: "G-MF1GVC9BBK"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  window._db = getFirestore(app);
+  window._fbDoc = doc;
+  window._fbGetDoc = getDoc;
+  window._fbSetDoc = setDoc;
+
+  showToast('🔄 載入資料中...');
+  await load();
+  activeKid = children.length ? children[0].id : null;
+  renderAll();
+  showToast('✅ 資料已載入！');
+
+  // Re-set date inputs when iPad wakes up or tab becomes visible again
+  document.addEventListener('visibilitychange', async function() {
+    if (document.visibilityState === 'visible') {
+      await load();
+      renderAll();
+      const todayVal = today();
+      children.forEach(child => {
+        const ed = document.getElementById('event-date-'+child.id);
+        const rd = document.getElementById('record-date-'+child.id);
+        if (ed) ed.value = todayVal;
+        if (rd) rd.value = todayVal;
+      });
+    }
+  });
+}
+
+initApp();
 </script>
 </body>
 </html>
