@@ -408,11 +408,11 @@ function buildScreenHTML(kid) {
       <div class="form-row">
         <div class="form-group">
           <div class="form-label">事由日期</div>
-          <input class="form-input" type="date" id="event-date-${kid}" value="${today()}">
+          <input class="form-input" type="date" id="event-date-${kid}">
         </div>
         <div class="form-group">
           <div class="form-label">集點日期</div>
-          <input class="form-input" type="date" id="record-date-${kid}" value="${today()}">
+          <input class="form-input" type="date" id="record-date-${kid}">
         </div>
       </div>
       <button class="add-btn" id="add-btn-${kid}" onclick="addRecord('${kid}')">🌿 加點！</button>
@@ -448,6 +448,12 @@ function renderChild(kid) {
   const child = children.find(c => c.id === kid);
   if (!child) return;
   applyStyle(child);
+  // refresh date inputs to today every render
+  const todayVal = today();
+  const ed = document.getElementById('event-date-'+kid);
+  const rd = document.getElementById('record-date-'+kid);
+  if (ed && !ed.value) ed.value = todayVal;
+  if (rd && !rd.value) rd.value = todayVal;
   const records = child.records, redeems = child.redeems;
   const total = records.reduce((s,r)=>s+r.pts,0) - redeems.reduce((s,r)=>s+r.cost,0);
   const c = COLORS[child.colorIdx];
@@ -674,6 +680,19 @@ document.getElementById('add-name-input').addEventListener('keydown',e=>{if(e.ke
 load();
 activeKid = children.length ? children[0].id : null;
 renderAll();
+
+// Re-set date inputs when iPad wakes up or tab becomes visible again
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') {
+    const todayVal = today();
+    children.forEach(child => {
+      const ed = document.getElementById('event-date-'+child.id);
+      const rd = document.getElementById('record-date-'+child.id);
+      if (ed) ed.value = todayVal;
+      if (rd) rd.value = todayVal;
+    });
+  }
+});
 </script>
 </body>
 </html>
