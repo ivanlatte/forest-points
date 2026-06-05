@@ -62,6 +62,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 .add-btn { width: 100%; padding: 13px; border: none; border-radius: 12px; font-family: var(--font); font-size: 15px; font-weight: 800; cursor: pointer; transition: all 0.2s; margin-top: 4px; }
 .add-btn:hover { filter: brightness(0.95); }
 .add-btn:active { transform: scale(0.98); }
+.quick-add-btn { width: 100%; padding: 11px; border: none; border-radius: 12px; font-family: var(--font); font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; margin-top: 6px; border: 2px dashed transparent; }
+.quick-add-btn:hover { filter: brightness(0.95); }
+.quick-add-btn:active { transform: scale(0.98); }
 
 .redeem-history { background: var(--card); border-radius: 14px; padding: 14px; border: 1.5px solid var(--border); margin-bottom: 14px; }
 .redeem-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; border-bottom: 1px solid #f0f0e8; }
@@ -418,6 +421,7 @@ function buildScreenHTML(kid) {
         </div>
       </div>
       <button class="add-btn" id="add-btn-${kid}" onclick="addRecord('${kid}')">🌿 加點！</button>
+      <button class="quick-add-btn" id="quick-add-btn-${kid}" onclick="quickAddAll('${kid}')">⚡ 三項全達成 +3</button>
     </div>
 
     <div class="section-title section-title-toggle" onclick="toggleSection('records-body-${kid}','records-arrow-${kid}')">
@@ -443,6 +447,7 @@ function applyStyle(child) {
   set('total-'+k, el => { el.style.color=c.dark; });
   set('redeem-btn-'+k, el => { el.style.background=c.light; el.style.color=c.dark; el.style.border='2px solid '+c.border; });
   set('add-btn-'+k, el => { el.style.background=c.tab; el.style.color=c.tabText; });
+  set('quick-add-btn-'+k, el => { el.style.background=c.light; el.style.color=c.dark; el.style.borderColor=c.border; });
   set('del-name-'+k, el => { el.textContent=child.name; });
 }
 
@@ -611,6 +616,23 @@ function confirmAvatar() {
 function onReasonChange(kid) {
   document.getElementById('custom-row-'+kid).style.display = document.getElementById('reason-'+kid).value==='自訂'?'flex':'none';
 }
+function quickAddAll(kid) {
+  const child = children.find(c => c.id === kid);
+  const t = today();
+  const eventDate = document.getElementById('event-date-'+kid).value || t;
+  const recordDate = document.getElementById('record-date-'+kid).value || t;
+  const items = [
+    { reason:'刷牙洗臉', pts:1 },
+    { reason:'換衣服',   pts:1 },
+    { reason:'自己睡覺', pts:1 },
+  ];
+  items.forEach(item => {
+    child.records.unshift({ id: Date.now() + Math.random(), reason: item.reason, pts: item.pts, eventDate, recordDate });
+  });
+  save(); renderChild(kid);
+  showToast('⚡ 三項全達成！+3 點 ' + child.emoji);
+}
+
 function addRecord(kid) {
   const sel=document.getElementById('reason-'+kid).value;
   const reason=sel==='自訂'?(document.getElementById('custom-'+kid).value.trim()||'自訂事由'):sel;
