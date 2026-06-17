@@ -247,16 +247,11 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
         <div class="mform-label">點數</div>
         <input class="mform-input" type="number" id="edit-pts" min="1" max="999" style="width:80px;text-align:center;font-weight:800;font-size:16px;">
       </div>
-      <div class="mform-row">
-        <div class="mform-group">
-          <div class="mform-label">事由日期</div>
-          <input class="mform-input" type="date" id="edit-event-date">
-        </div>
-        <div class="mform-group">
-          <div class="mform-label">集點日期</div>
-          <input class="mform-input" type="date" id="edit-record-date">
-        </div>
+      <div class="mform-group">
+        <div class="mform-label">事由日期</div>
+        <input class="mform-input" type="date" id="edit-event-date">
       </div>
+      <input type="hidden" id="edit-record-date">
     </div>
     <div class="modal-btns">
       <button class="modal-btn cancel" onclick="closeEditModal()">取消</button>
@@ -415,10 +410,6 @@ function buildScreenHTML(kid) {
           <div class="form-label">事由日期</div>
           <input class="form-input" type="date" id="event-date-${kid}">
         </div>
-        <div class="form-group">
-          <div class="form-label">集點日期</div>
-          <input class="form-input" type="date" id="record-date-${kid}">
-        </div>
       </div>
       <button class="add-btn" id="add-btn-${kid}" onclick="addRecord('${kid}')">🌿 加點！</button>
       <button class="quick-add-btn" id="quick-add-btn-${kid}" onclick="quickAddAll('${kid}')">⚡ 三項全達成 +3</button>
@@ -458,9 +449,7 @@ function renderChild(kid) {
   // refresh date inputs to today every render
   const todayVal = today();
   const ed = document.getElementById('event-date-'+kid);
-  const rd = document.getElementById('record-date-'+kid);
   if (ed && !ed.value) ed.value = todayVal;
-  if (rd && !rd.value) rd.value = todayVal;
   const records = child.records, redeems = child.redeems;
   const total = records.reduce((s,r)=>s+r.pts,0) - redeems.reduce((s,r)=>s+r.cost,0);
   const c = COLORS[child.colorIdx];
@@ -620,7 +609,7 @@ function quickAddAll(kid) {
   const child = children.find(c => c.id === kid);
   const t = today();
   const eventDate = document.getElementById('event-date-'+kid).value || t;
-  const recordDate = document.getElementById('record-date-'+kid).value || t;
+  const recordDate = t;
   const items = [
     { reason:'刷牙洗臉', pts:1 },
     { reason:'換衣服',   pts:1 },
@@ -638,7 +627,7 @@ function addRecord(kid) {
   const reason=sel==='自訂'?(document.getElementById('custom-'+kid).value.trim()||'自訂事由'):sel;
   const pts=Math.max(1,parseInt(document.getElementById('pts-'+kid).value)||1);
   const child=children.find(c=>c.id===kid);
-  child.records.unshift({ id:Date.now(), reason, pts, eventDate:document.getElementById('event-date-'+kid).value||today(), recordDate:document.getElementById('record-date-'+kid).value||today() });
+  child.records.unshift({ id:Date.now(), reason, pts, eventDate:document.getElementById('event-date-'+kid).value||today(), recordDate:today() });
   save(); renderChild(kid); showToast('🎉 +'+pts+' 點！加油 '+child.name+' '+child.emoji);
 }
 function deleteRecord(kid,id) { const child=children.find(c=>c.id===kid); child.records=child.records.filter(r=>r.id!==id); save(); renderChild(kid); }
