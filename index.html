@@ -484,7 +484,7 @@ function renderChild(kid) {
     <div class="record-item">
       <div class="record-icon">${REASON_ICONS[r.reason]||DEFAULT_ICON}</div>
       <div class="record-info">
-        <div class="record-reason">${escHtml(r.reason)}</div>
+        <div class="record-reason">${escHtml(r.reason)}${r.auto ? ' <span style="font-size:10px;font-weight:700;background:#e8f5e8;color:#5a9e5a;border-radius:6px;padding:1px 5px;">自動</span>' : ''}</div>
         <div class="record-dates">事由：${r.eventDate}&nbsp;｜&nbsp;集點：${r.recordDate}</div>
       </div>
       <div class="record-pts" style="color:${c.dark}">+${r.pts}</div>
@@ -689,6 +689,72 @@ function showToast(msg) { const t=document.getElementById('toast'); t.textConten
 });
 document.getElementById('name-edit-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmNameEdit();});
 document.getElementById('add-name-input').addEventListener('keydown',e=>{if(e.key==='Enter')confirmAddChild();});
+
+// ── AUTO FILL MISSING DAYS ──
+function autoFillMissingDays() {
+  const todayStr = today();
+  const STORAGE_KEY = 'forest_last_auto_date';
+
+  // get last auto-fill date from localStorage
+  let lastDate = null;
+  try { lastDate = localStorage.getItem(STORAGE_KEY); } catch(e) {}
+
+  if (!lastDate) {
+    // first time — just record today, don't add points
+    try { localStorage.setItem(STORAGE_KEY, todayStr); } catch(e) {}
+    return;
+  }
+
+  if (lastDate === todayStr) return; // already filled today
+
+  // calculate missing days
+  const last = new Date(lastDate);
+  const todayD = new Date(todayStr);
+  const diffDays = Math.round((todayD - last) / (1000 * 60 * 60 * 24));
+  if (diffDays <= 0) return;
+
+  // generate a date string for each missing day
+  const missingDays = [];
+  for (let i = 1; i <= diffDays; i++) {
+    const d = new Date(last);
+    d.setDate(d.getDate() + i);
+    missingDays.push(d.toISOString().slice(0, 10));
+  }
+
+  const AUTO_ITEMS = [
+    { reason: '刷牙洗臉', pts: 1 },
+    { reason: '換衣服',   pts: 1 },
+    { reason: '自己睡覺', pts: 1 },
+  ];
+
+  let added = 0;
+  children.forEach(child => {
+    missingDays.forEach(dateStr => {
+      AUTO_ITEMS.forEach(item => {
+        child.records.unshift({
+          id: Date.now() + Math.random(),
+          reason: item.reason,
+          pts: item.pts,
+          eventDate: dateStr,
+          recordDate: dateStr,
+          auto: true,
+        });
+        added++;
+      });
+    });
+  });
+
+  // update last date
+  try { localStorage.setItem(STORAGE_KEY, todayStr); } catch(e) {}
+
+  if (added > 0) {
+    save();
+    const msg = diffDays === 1
+      ? '🌿 已自動補上昨天的點數！'
+      : '🌿 已自動補上 ' + diffDays + ' 天的點數！';
+    setTimeout(() => showToast(msg), 1500);
+  }
+}
 
 // ── FIREBASE INIT ──
 async function initApp() {
